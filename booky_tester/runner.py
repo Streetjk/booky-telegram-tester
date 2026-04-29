@@ -41,34 +41,36 @@ class BookyTester:
         self._reply_queue: asyncio.Queue[Message] = asyncio.Queue()
         self._bot_entity = None
 
-    async def _setup(self) -> None:
-        if not await self.client.is_user_authorized():
-            await self._qr_login()
-        else:
-            await self.client.connect()
-        self._bot_entity = await self.client.get_entity(self.bot_username)
-        me = await self.client.get_me()
-        logger.info("Connected as %s (@%s), bot: %s", me.first_name, me.username, self.bot_username)
-
     async def _qr_login(self) -> None:
         """Log in via QR code — scan with Telegram Desktop or mobile app."""
-        import qrcode_terminal  # pip install qrcode-terminal
+        import qrcode, io
+        from telethon.errors import SessionPasswordNeededError
         print("\n" + "=" * 60)
         print("First-time login — scan the QR code with Telegram Desktop")
         print("(Settings → Devices → Link Desktop Device)")
         print("=" * 60 + "\n")
-        qr = await self.client.qr_login()
         while True:
+            qr = await self.client.qr_login()
+            qr_obj = qrcode.QRCode()
+            qr_obj.add_data(qr.url)
+            qr_obj.make(fit=True)
+            f = io.StringIO()
+            qr_obj.print_ascii(out=f, invert=True)
+            print(f.getvalue())
+            print("(waiting up to 30s for scan...)\n")
             try:
-                qrcode_terminal.draw(qr.url)
-                print(f"\n(expires in {int(qr.timeout)}s — waiting for scan...)\n")
-                await qr.wait(qr.timeout)
+                await asyncio.wait_for(qr.wait(), timeout=30)
                 break
-            except Exception:
-                try:
-                    await qr.recreate()
-                except Exception:
-                    break
+            except asyncio.TimeoutError:
+                print("QR expired — generating new one...\n")
+                continue
+            except SessionPasswordNeededError:
+                pwd = input("2FA password: ")
+                await self.client.sign_in(password=pwd)
+                break
+            except Exception as e:
+                logger.debug("QR wait error: %s, retrying", e)
+                continue
         print("✓ Logged in! Session saved — no scan needed next time.\n")
 
         @self.client.on(events.NewMessage(from_users=self._bot_entity))
@@ -187,26 +189,37 @@ class BookyTester:
             self.report.add(result)
 
     async def run(self) -> Report:
-        await self._setup()
+        # Use `async with` so Telethon starts its update receiver loop,
+        # which is required for event handlers to fire.
+        async with self.client:
+            if not await self.client.is_user_authorized():
+                await self._qr_login()
 
-        personas = PERSONAS
-        if self.persona_filter:
-            personas = [p for p in personas if p["name"] in self.persona_filter]
+            self._bot_entity = await self.client.get_entity(self.bot_username)
+            me = await self.client.get_me()
+            logger.info("Connected as %s (@%s), bot: %s", me.first_name, me.username, self.bot_username)
 
-        for persona in personas:
-            print(f"\n{'='*60}")
-            print(f"PERSONA: {persona['name']} — {persona['business']}")
-            flows = persona["flows"]
-            if self.flow_filter:
-                flows = [f for f in flows if f["name"] in self.flow_filter]
-            for flow in flows:
-                await self._run_flow(persona["name"], flow["name"], flow["turns"])
-                # Gap between flows: simulates Hiro putting down the phone for a bit
-                gap = 30 + (len(flow["turns"]) * 5)
-                logger.info("Pausing %ds between flows...", gap)
-                await asyncio.sleep(gap)
+            # Register event handler inside the running context
+            @self.client.on(events.NewMessage(from_users=self._bot_entity))
+            async def _on_bot_message(event):
+                await self._reply_queue.put(event.message)
+
+            personas = PERSONAS
+            if self.persona_filter:
+                personas = [p for p in personas if p["name"] in self.persona_filter]
+
+            for persona in personas:
+                print(f"\n{'='*60}")
+                print(f"PERSONA: {persona['name']} — {persona['business']}")
+                flows = persona["flows"]
+                if self.flow_filter:
+                    flows = [f for f in flows if f["name"] in self.flow_filter]
+                for flow in flows:
+                    await self._run_flow(persona["name"], flow["name"], flow["turns"])
+                    gap = 30 + (len(flow["turns"]) * 5)
+                    logger.info("Pausing %ds between flows...", gap)
+                    await asyncio.sleep(gap)
 
         self.report.summary()
         self.report.save()
-        await self.client.disconnect()
         return self.report
