@@ -2,17 +2,18 @@
 """
 Booky Telegram Human-Pace Tester
 ---------------------------------
-Connects as a real Telegram user (Hiro's test account) and runs realistic
-multi-turn conversations with the Booky bot at human typing/reading speed.
+Connects as a real Telegram user (Hiro) and runs realistic multi-turn
+conversations with the Booky bot at human typing/reading speed.
 
 Usage:
     python run.py                          # all personas, all flows
     python run.py --personas Dave Sarah    # specific personas only
     python run.py --flows quote_create_confirm  # specific flow only
-    python run.py --quick                  # 2 personas, 1 flow each (smoke test)
+    python run.py --quick                  # Dave + Sarah, 1 flow each (~5 min)
 
-First run: Telegram will SMS a verification code to TELEGRAM_PHONE.
-Subsequent runs: uses the saved session file (no code needed).
+First run: a QR code prints in the terminal.
+  → Open Telegram Desktop → Settings → Devices → Link Desktop Device → scan.
+  Session saved to hiro_test.session — no scan needed on subsequent runs.
 """
 
 import argparse
@@ -20,7 +21,6 @@ import asyncio
 import logging
 import os
 import sys
-from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -31,7 +31,6 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s — %(message)s",
     datefmt="%H:%M:%S",
 )
-# Suppress noisy telethon logs
 logging.getLogger("telethon").setLevel(logging.WARNING)
 
 
@@ -62,14 +61,11 @@ async def main():
 
     if args.quick:
         persona_filter = ["Dave", "Sarah"]
-        flow_filter = None
-        # Only first flow per persona — done in runner by slicing
         print("Quick mode: Dave + Sarah, first flow each\n")
 
     tester = BookyTester(
         api_id=int(get_env("TELEGRAM_API_ID")),
         api_hash=get_env("TELEGRAM_API_HASH"),
-        phone=get_env("TELEGRAM_PHONE"),
         bot_username=get_env("BOT_USERNAME"),
         session_name=args.session,
         persona_filter=persona_filter,
@@ -77,7 +73,6 @@ async def main():
     )
 
     if args.quick:
-        # Limit to 1 flow per persona in quick mode
         from booky_tester.personas import PERSONAS
         for p in PERSONAS:
             if p["flows"]:

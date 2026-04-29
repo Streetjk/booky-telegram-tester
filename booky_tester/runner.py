@@ -26,8 +26,8 @@ class BookyTester:
         self,
         api_id: int,
         api_hash: str,
-        phone: str,
         bot_username: str,
+        phone: str = "",
         session_name: str = "hiro_test",
         persona_filter: Optional[list[str]] = None,
         flow_filter: Optional[list[str]] = None,
@@ -42,9 +42,34 @@ class BookyTester:
         self._bot_entity = None
 
     async def _setup(self) -> None:
-        await self.client.start(phone=self.phone)
+        if not await self.client.is_user_authorized():
+            await self._qr_login()
+        else:
+            await self.client.connect()
         self._bot_entity = await self.client.get_entity(self.bot_username)
-        logger.info("Connected as %s, bot: %s", self.phone, self.bot_username)
+        me = await self.client.get_me()
+        logger.info("Connected as %s (@%s), bot: %s", me.first_name, me.username, self.bot_username)
+
+    async def _qr_login(self) -> None:
+        """Log in via QR code — scan with Telegram Desktop or mobile app."""
+        import qrcode_terminal  # pip install qrcode-terminal
+        print("\n" + "=" * 60)
+        print("First-time login — scan the QR code with Telegram Desktop")
+        print("(Settings → Devices → Link Desktop Device)")
+        print("=" * 60 + "\n")
+        qr = await self.client.qr_login()
+        while True:
+            try:
+                qrcode_terminal.draw(qr.url)
+                print(f"\n(expires in {int(qr.timeout)}s — waiting for scan...)\n")
+                await qr.wait(qr.timeout)
+                break
+            except Exception:
+                try:
+                    await qr.recreate()
+                except Exception:
+                    break
+        print("✓ Logged in! Session saved — no scan needed next time.\n")
 
         @self.client.on(events.NewMessage(from_users=self._bot_entity))
         async def _on_bot_message(event):
