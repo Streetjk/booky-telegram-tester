@@ -10,6 +10,7 @@ Usage:
     python run.py --personas Dave Sarah    # specific personas only
     python run.py --flows quote_create_confirm  # specific flow only
     python run.py --quick                  # Dave + Sarah, 1 flow each (~5 min)
+    python run.py --no-wait-on-limit       # fail immediately on trial cap (for CI)
 
 First run: a QR code prints in the terminal.
   → Open Telegram Desktop → Settings → Devices → Link Desktop Device → scan.
@@ -46,7 +47,8 @@ def parse_args():
     p = argparse.ArgumentParser(description="Booky Telegram Human-Pace Tester")
     p.add_argument("--personas", nargs="+", help="Run only these personas (e.g. Dave Sarah)")
     p.add_argument("--flows", nargs="+", help="Run only these flows (e.g. quote_create_confirm)")
-    p.add_argument("--quick", action="store_true", help="Quick mode: Dave + Sarah, first flow each")
+    p.add_argument("--quick", action="store_true", help="Quick mode: Dave + Sarah, first flow each (~5 min)")
+    p.add_argument("--no-wait-on-limit", action="store_true", help="Fail immediately on trial limit instead of sleeping until midnight UTC (for CI)")
     p.add_argument("--session", default="hiro_test", help="Telethon session file name")
     return p.parse_args()
 
@@ -58,9 +60,11 @@ async def main():
 
     persona_filter = args.personas
     flow_filter = args.flows
+    quick_flow_limit = None
 
     if args.quick:
-        persona_filter = ["Dave", "Sarah"]
+        persona_filter = persona_filter or ["Dave", "Sarah"]
+        quick_flow_limit = 1
         print("Quick mode: Dave + Sarah, first flow each\n")
 
     tester = BookyTester(
@@ -70,13 +74,9 @@ async def main():
         session_name=args.session,
         persona_filter=persona_filter,
         flow_filter=flow_filter,
+        quick_flow_limit=quick_flow_limit,
+        no_wait_on_limit=args.no_wait_on_limit,
     )
-
-    if args.quick:
-        from booky_tester.personas import PERSONAS
-        for p in PERSONAS:
-            if p["flows"]:
-                p["flows"] = p["flows"][:1]
 
     report = await tester.run()
     passed = sum(1 for t in report.turns if t.passed)

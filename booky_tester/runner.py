@@ -4,16 +4,45 @@ import asyncio
 import os
 import time
 import logging
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 from telethon import TelegramClient, events
 from telethon.tl.types import Message, ReplyInlineMarkup, KeyboardButtonCallback
 
-from .timing import human_type, human_read, REPLY_TIMEOUT
+from .timing import (
+    human_type, human_read, REPLY_TIMEOUT,
+    BURST_QUIET_SECONDS, BUTTON_BURST_QUIET_SECONDS, MAX_BURST_SECONDS,
+)
 from .personas import PERSONAS, Turn
 from .reporter import Report, TurnResult
 
 logger = logging.getLogger("booky_tester")
+
+TRIAL_LIMIT_PATTERNS = (
+    "50-message",
+    "daily message limit",
+    "message limit",
+    "free trial",
+    "trial limit",
+    "try again tomorrow",
+    "limit resets",
+)
+
+
+def _is_trial_limit(text: str) -> bool:
+    low = text.lower()
+    return any(p in low for p in TRIAL_LIMIT_PATTERNS)
+
+
+def _seconds_until_midnight_utc() -> float:
+    now = datetime.now(timezone.utc)
+    reset = (now + timedelta(days=1)).replace(hour=0, minute=1, second=0, microsecond=0)
+    return max(60.0, (reset - now).total_seconds())
+
+
+class TrialRateLimitReached(Exception):
+    pass
 
 
 async def _flush_hiro_sessions() -> None:
@@ -57,16 +86,20 @@ class BookyTester:
         session_name: str = "hiro_test",
         persona_filter: Optional[list[str]] = None,
         flow_filter: Optional[list[str]] = None,
+        quick_flow_limit: Optional[int] = None,
+        no_wait_on_limit: bool = False,
     ):
         self.client = TelegramClient(session_name, api_id, api_hash)
         self.phone = phone
         self.bot_username = bot_username
         self.persona_filter = persona_filter
         self.flow_filter = flow_filter
+        self.quick_flow_limit = quick_flow_limit
+        self.no_wait_on_limit = no_wait_on_limit
         self.report = Report()
         self._reply_queue: asyncio.Queue[Message] = asyncio.Queue()
         self._bot_entity = None
-        self._last_reply: Optional[Message] = None  # for button-only turns
+        self._last_reply: Optional[Message] = None
 
     async def _qr_login(self) -> None:
         """Log in via QR code — scan with Telegram Desktop or mobile app."""
@@ -106,27 +139,39 @@ class BookyTester:
         logger.debug("→ sent: %s", text[:80])
         return sent
 
-    async def _wait_reply(self) -> Optional[Message]:
-        """Wait for the bot's reply, collecting burst messages."""
+    async def _wait_reply(self, quiet_s: float = BURST_QUIET_SECONDS) -> Optional[tuple[str, Message]]:
+        """Wait for the bot's reply, collecting burst messages within a quiet window.
+
+        Returns (combined_text, clickable_message) or None on timeout.
+        The clickable_message is the last message that has inline buttons, or
+        the last message overall if none have buttons.
+        """
         try:
             first = await asyncio.wait_for(self._reply_queue.get(), timeout=REPLY_TIMEOUT)
         except asyncio.TimeoutError:
             logger.warning("Timed out waiting for bot reply")
             return None
 
-        combined_text = first.text or ""
-        last_message = first
-        while True:
+        messages = [first]
+        deadline = time.monotonic() + MAX_BURST_SECONDS
+        while time.monotonic() < deadline:
             try:
-                extra = await asyncio.wait_for(self._reply_queue.get(), timeout=5.0)
-                combined_text += "\n" + (extra.text or "")
-                last_message = extra
+                extra = await asyncio.wait_for(
+                    self._reply_queue.get(),
+                    timeout=min(quiet_s, max(0.1, deadline - time.monotonic())),
+                )
+                messages.append(extra)
             except asyncio.TimeoutError:
                 break
 
-        last_message.message = combined_text
-        logger.debug("← reply: %s", combined_text[:120])
-        return last_message
+        combined_text = "\n".join(m.text or "" for m in messages)
+        # Prefer the last message with inline buttons as the clickable one
+        clickable = next(
+            (m for m in reversed(messages) if self._extract_buttons(m)),
+            messages[-1],
+        )
+        logger.debug("← reply (%d msgs): %s", len(messages), combined_text[:120])
+        return combined_text, clickable
 
     def _extract_buttons(self, msg: Message) -> dict[str, KeyboardButtonCallback]:
         buttons = {}
@@ -139,19 +184,19 @@ class BookyTester:
                         buttons[btn.text] = btn
         return buttons
 
-    async def _click_button(self, msg: Message, label_substr: str) -> Optional[Message]:
+    async def _click_button(self, msg: Message, label_substr: str) -> Optional[tuple[str, Message]]:
         """Click the first inline button whose label contains label_substr."""
         buttons = self._extract_buttons(msg)
         for label, btn in buttons.items():
             if label_substr.lower() in label.lower():
                 logger.debug("Clicking button: %s", label)
                 await msg.click(data=btn.data)
-                return await self._wait_reply()
+                return await self._wait_reply(quiet_s=BUTTON_BURST_QUIET_SECONDS)
         logger.warning("Button %r not found in %s", label_substr, list(buttons.keys()))
         return None
 
     def _drain_queue(self) -> None:
-        """Discard any stale replies sitting in the queue from a previous timed-out turn."""
+        """Discard stale replies from a previous timed-out turn."""
         drained = 0
         while not self._reply_queue.empty():
             try:
@@ -168,23 +213,37 @@ class BookyTester:
         reply_text = ""
         reply_msg = None
 
-        # Discard any leftover replies from a previous timeout
         self._drain_queue()
 
         if not turn.get("message") and turn.get("button"):
             # Button-only turn: click button on last reply, no text sent
             if self._last_reply:
-                reply_msg = await self._click_button(self._last_reply, turn["button"])
-                if reply_msg:
-                    reply_text = reply_msg.message or ""
+                result = await self._click_button(self._last_reply, turn["button"])
+                if result:
+                    reply_text, reply_msg = result
                     button_clicked = turn["button"]
+                else:
+                    return TurnResult(
+                        persona=persona_name, flow=flow_name, turn=idx + 1,
+                        label=turn["label"], message="",
+                        reply="", passed=False, expect=turn["expect"],
+                        button_clicked=None, elapsed_s=time.time() - t0,
+                        reason=f"Button {turn['button']!r} not found or no reply after click",
+                    )
             else:
                 logger.warning("Button-only turn but no last reply to click")
+                return TurnResult(
+                    persona=persona_name, flow=flow_name, turn=idx + 1,
+                    label=turn["label"], message="",
+                    reply="", passed=False, expect=turn["expect"],
+                    button_clicked=None, elapsed_s=time.time() - t0,
+                    reason="Button-only turn but no previous reply to click",
+                )
         else:
             # Normal turn: send text, wait for reply
             await self._send(turn["message"])
-            reply_msg = await self._wait_reply()
-            if reply_msg is None:
+            result = await self._wait_reply()
+            if result is None:
                 return TurnResult(
                     persona=persona_name, flow=flow_name, turn=idx + 1,
                     label=turn["label"], message=turn["message"],
@@ -192,15 +251,23 @@ class BookyTester:
                     button_clicked=None, elapsed_s=time.time() - t0,
                     reason="No reply received (timeout)",
                 )
-            reply_text = reply_msg.message or ""
+            reply_text, reply_msg = result
+
+            # Check for trial limit before clicking any button
+            if _is_trial_limit(reply_text):
+                raise TrialRateLimitReached(reply_text)
 
             # Optionally click a button on this reply
             if turn.get("button"):
-                button_reply = await self._click_button(reply_msg, turn["button"])
-                if button_reply:
-                    reply_text += "\n" + (button_reply.message or "")
+                btn_result = await self._click_button(reply_msg, turn["button"])
+                if btn_result:
+                    extra_text, reply_msg = btn_result
+                    reply_text += "\n" + extra_text
                     button_clicked = turn["button"]
-                    reply_msg = button_reply
+
+        # Check for trial limit in any collected reply
+        if _is_trial_limit(reply_text):
+            raise TrialRateLimitReached(reply_text)
 
         self._last_reply = reply_msg
 
@@ -222,7 +289,30 @@ class BookyTester:
         print(f"\n  → {persona_name} / {flow_name}")
         self._last_reply = None
         for idx, turn in enumerate(turns):
-            result = await self._run_turn(persona_name, flow_name, idx, turn)
+            while True:
+                try:
+                    result = await self._run_turn(persona_name, flow_name, idx, turn)
+                    break
+                except TrialRateLimitReached:
+                    if self.no_wait_on_limit:
+                        result = TurnResult(
+                            persona=persona_name, flow=flow_name, turn=idx + 1,
+                            label=turn["label"], message=turn.get("message", ""),
+                            reply="TRIAL LIMIT REACHED", passed=False,
+                            expect=turn["expect"], button_clicked=None,
+                            elapsed_s=0, reason="Trial daily message limit reached",
+                        )
+                        break
+                    wait_s = _seconds_until_midnight_utc()
+                    h, m = divmod(int(wait_s), 3600)
+                    m //= 60
+                    print(f"\n  ⏸  TRIAL LIMIT HIT — pausing {h}h {m}m until midnight UTC reset")
+                    logger.warning("Trial cap hit. Sleeping %.0fs until midnight UTC.", wait_s)
+                    await asyncio.sleep(wait_s)
+                    self._drain_queue()
+                    await _flush_hiro_sessions()
+                    await asyncio.sleep(3)
+                    continue
             self.report.add(result)
 
     async def run(self) -> Report:
@@ -243,15 +333,18 @@ class BookyTester:
                 personas = [p for p in personas if p["name"] in self.persona_filter]
 
             for persona in personas:
-                # Flush Hiro's session so each persona starts with clean context
                 await _flush_hiro_sessions()
-                await asyncio.sleep(3)  # brief pause so bot is ready after flush
+                await asyncio.sleep(3)
 
                 print(f"\n{'='*60}")
                 print(f"PERSONA: {persona['name']} — {persona['business']}")
-                flows = persona["flows"]
+
+                flows = list(persona["flows"])  # copy — never mutate the module-level list
+                if self.quick_flow_limit is not None:
+                    flows = flows[:self.quick_flow_limit]
                 if self.flow_filter:
                     flows = [f for f in flows if f["name"] in self.flow_filter]
+
                 for flow in flows:
                     await self._run_flow(persona["name"], flow["name"], flow["turns"])
                     gap = 20 + (len(flow["turns"]) * 5)

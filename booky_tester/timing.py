@@ -16,6 +16,13 @@ THINK_MAX = 5.0
 # Minimum/maximum time to wait for a bot reply before timing out
 REPLY_TIMEOUT = 90
 
+# Burst collection: quiet window after last message before declaring "done"
+BURST_QUIET_SECONDS = 8.0
+# Longer quiet window after a button click (bot may send more messages)
+BUTTON_BURST_QUIET_SECONDS = 12.0
+# Absolute cap on burst collection regardless of quiet window
+MAX_BURST_SECONDS = 45.0
+
 
 def typing_delay(message: str, jitter: float = 0.2) -> float:
     """Seconds to wait before sending, simulating human typing."""
