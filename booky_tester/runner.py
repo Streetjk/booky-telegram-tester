@@ -150,11 +150,26 @@ class BookyTester:
         logger.warning("Button %r not found in %s", label_substr, list(buttons.keys()))
         return None
 
+    def _drain_queue(self) -> None:
+        """Discard any stale replies sitting in the queue from a previous timed-out turn."""
+        drained = 0
+        while not self._reply_queue.empty():
+            try:
+                self._reply_queue.get_nowait()
+                drained += 1
+            except asyncio.QueueEmpty:
+                break
+        if drained:
+            logger.debug("Drained %d stale reply(s) from queue", drained)
+
     async def _run_turn(self, persona_name: str, flow_name: str, idx: int, turn: Turn) -> TurnResult:
         t0 = time.time()
         button_clicked = None
         reply_text = ""
         reply_msg = None
+
+        # Discard any leftover replies from a previous timeout
+        self._drain_queue()
 
         if not turn.get("message") and turn.get("button"):
             # Button-only turn: click button on last reply, no text sent
@@ -230,6 +245,7 @@ class BookyTester:
             for persona in personas:
                 # Flush Hiro's session so each persona starts with clean context
                 await _flush_hiro_sessions()
+                await asyncio.sleep(3)  # brief pause so bot is ready after flush
 
                 print(f"\n{'='*60}")
                 print(f"PERSONA: {persona['name']} — {persona['business']}")

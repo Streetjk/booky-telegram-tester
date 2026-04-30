@@ -14,7 +14,7 @@ THINK_MIN = 1.5
 THINK_MAX = 5.0
 
 # Minimum/maximum time to wait for a bot reply before timing out
-REPLY_TIMEOUT = 45
+REPLY_TIMEOUT = 90
 
 
 def typing_delay(message: str, jitter: float = 0.2) -> float:
