@@ -118,7 +118,7 @@ class BookyTester:
         last_message = first
         while True:
             try:
-                extra = await asyncio.wait_for(self._reply_queue.get(), timeout=2.0)
+                extra = await asyncio.wait_for(self._reply_queue.get(), timeout=5.0)
                 combined_text += "\n" + (extra.text or "")
                 last_message = extra
             except asyncio.TimeoutError:
