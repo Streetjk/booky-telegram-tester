@@ -13,6 +13,7 @@ from telethon.tl.types import Message, ReplyInlineMarkup, KeyboardButtonCallback
 from .timing import (
     human_type, human_read, REPLY_TIMEOUT,
     BURST_QUIET_SECONDS, BUTTON_BURST_QUIET_SECONDS, MAX_BURST_SECONDS,
+    set_speed, flow_pause,
 )
 from .personas import PERSONAS, Turn
 from .reporter import Report, TurnResult
@@ -88,6 +89,8 @@ class BookyTester:
         flow_filter: Optional[list[str]] = None,
         quick_flow_limit: Optional[int] = None,
         no_wait_on_limit: bool = False,
+        iterations: int = 1,
+        speed: float = 1.0,
     ):
         self.client = TelegramClient(session_name, api_id, api_hash)
         self.phone = phone
@@ -96,6 +99,8 @@ class BookyTester:
         self.flow_filter = flow_filter
         self.quick_flow_limit = quick_flow_limit
         self.no_wait_on_limit = no_wait_on_limit
+        self.iterations = iterations
+        set_speed(speed)
         self.report = Report()
         self._reply_queue: asyncio.Queue[Message] = asyncio.Queue()
         self._bot_entity = None
@@ -332,24 +337,29 @@ class BookyTester:
             if self.persona_filter:
                 personas = [p for p in personas if p["name"] in self.persona_filter]
 
-            for persona in personas:
-                await _flush_hiro_sessions()
-                await asyncio.sleep(3)
+            for iteration in range(1, self.iterations + 1):
+                if self.iterations > 1:
+                    print(f"\n{'#'*60}")
+                    print(f"ITERATION {iteration}/{self.iterations}")
+                    print(f"{'#'*60}")
+                for persona in personas:
+                    await _flush_hiro_sessions()
+                    await asyncio.sleep(3)
 
-                print(f"\n{'='*60}")
-                print(f"PERSONA: {persona['name']} — {persona['business']}")
+                    print(f"\n{'='*60}")
+                    print(f"PERSONA: {persona['name']} — {persona['business']}")
 
-                flows = list(persona["flows"])  # copy — never mutate the module-level list
-                if self.quick_flow_limit is not None:
-                    flows = flows[:self.quick_flow_limit]
-                if self.flow_filter:
-                    flows = [f for f in flows if f["name"] in self.flow_filter]
+                    flows = list(persona["flows"])  # copy — never mutate the module-level list
+                    if self.quick_flow_limit is not None:
+                        flows = flows[:self.quick_flow_limit]
+                    if self.flow_filter:
+                        flows = [f for f in flows if f["name"] in self.flow_filter]
 
-                for flow in flows:
-                    await self._run_flow(persona["name"], flow["name"], flow["turns"])
-                    gap = 20 + (len(flow["turns"]) * 5)
-                    logger.info("Pausing %ds between flows...", gap)
-                    await asyncio.sleep(gap)
+                    for flow in flows:
+                        await self._run_flow(persona["name"], flow["name"], flow["turns"])
+                        gap = flow_pause(len(flow["turns"]))
+                        logger.info("Pausing %.0fs between flows...", gap)
+                        await asyncio.sleep(gap)
 
         self.report.summary()
         self.report.save()

@@ -49,6 +49,8 @@ def parse_args():
     p.add_argument("--flows", nargs="+", help="Run only these flows (e.g. quote_create_confirm)")
     p.add_argument("--quick", action="store_true", help="Quick mode: Dave + Sarah, first flow each (~5 min)")
     p.add_argument("--no-wait-on-limit", action="store_true", help="Fail immediately on trial limit instead of sleeping until midnight UTC (for CI)")
+    p.add_argument("--iterations", type=int, default=1, help="Repeat the full suite N times (e.g. --iterations 4 gives ~228 turns)")
+    p.add_argument("--speed", type=float, default=1.0, help="Speed multiplier: 1=human pace, 3=3× faster typing/reading/thinking")
     p.add_argument("--session", default="hiro_test", help="Telethon session file name")
     return p.parse_args()
 
@@ -76,6 +78,8 @@ async def main():
         flow_filter=flow_filter,
         quick_flow_limit=quick_flow_limit,
         no_wait_on_limit=args.no_wait_on_limit,
+        iterations=args.iterations,
+        speed=args.speed,
     )
 
     report = await tester.run()

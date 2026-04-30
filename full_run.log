@@ -1,241 +1,171 @@
-12:31:39 INFO booky_tester — Connected as Hiro (@None), bot: Data33catbot
-12:31:39 INFO booky_tester — Flushed 1 Redis session keys for Hiro
-12:33:40 INFO booky_tester — Pausing 35s between flows...
-12:36:00 INFO booky_tester — Pausing 35s between flows...
-12:36:35 INFO booky_tester — Flushed 3 Redis session keys for Hiro
-12:38:50 INFO booky_tester — Pausing 40s between flows...
-12:41:31 INFO booky_tester — Pausing 35s between flows...
-12:42:06 INFO booky_tester — Flushed 3 Redis session keys for Hiro
-12:44:19 INFO booky_tester — Pausing 40s between flows...
-12:46:38 INFO booky_tester — Pausing 35s between flows...
-12:47:13 INFO booky_tester — Flushed 4 Redis session keys for Hiro
-12:48:58 INFO booky_tester — Pausing 35s between flows...
-12:50:46 INFO booky_tester — Pausing 30s between flows...
-12:51:16 INFO booky_tester — Flushed 4 Redis session keys for Hiro
-12:53:25 INFO booky_tester — Pausing 40s between flows...
-12:55:08 INFO booky_tester — Pausing 30s between flows...
-12:55:38 INFO booky_tester — Flushed 4 Redis session keys for Hiro
-12:57:38 INFO booky_tester — Pausing 35s between flows...
-12:59:39 INFO booky_tester — Pausing 35s between flows...
-13:00:14 INFO booky_tester — Flushed 4 Redis session keys for Hiro
-13:01:38 INFO booky_tester — Pausing 35s between flows...
-13:03:20 INFO booky_tester — Pausing 30s between flows...
-13:03:50 INFO booky_tester — Flushed 4 Redis session keys for Hiro
-13:04:30 WARNING booky_tester — Button '✅' not found in []
-13:05:07 INFO booky_tester — Pausing 35s between flows...
-13:06:35 INFO booky_tester — Pausing 30s between flows...
-13:07:06 INFO booky_tester — Flushed 0 Redis session keys for Hiro
-13:08:31 INFO booky_tester — Pausing 35s between flows...
-13:10:02 INFO booky_tester — Pausing 30s between flows...
-13:10:32 INFO booky_tester — Flushed 0 Redis session keys for Hiro
-13:11:14 WARNING booky_tester — Button '✅' not found in []
-13:11:44 INFO booky_tester — Pausing 35s between flows...
-13:13:25 INFO booky_tester — Pausing 30s between flows...
+13:38:47 INFO booky_tester — Connected as Hiro (@None), bot: Data33catbot
+13:38:47 INFO booky_tester — Flushed 0 Redis session keys for Hiro
+13:40:51 INFO booky_tester — Pausing 35s between flows...
+13:43:27 INFO booky_tester — Pausing 35s between flows...
+13:44:02 INFO booky_tester — Flushed 3 Redis session keys for Hiro
+13:46:35 INFO booky_tester — Pausing 40s between flows...
+13:49:22 INFO booky_tester — Pausing 35s between flows...
+13:49:57 INFO booky_tester — Flushed 3 Redis session keys for Hiro
+13:52:49 INFO booky_tester — Pausing 40s between flows...
+13:55:14 INFO booky_tester — Pausing 35s between flows...
+13:55:49 INFO booky_tester — Flushed 4 Redis session keys for Hiro
+13:57:43 INFO booky_tester — Pausing 35s between flows...
+13:59:35 INFO booky_tester — Pausing 30s between flows...
+14:00:05 INFO booky_tester — Flushed 4 Redis session keys for Hiro
+14:02:18 INFO booky_tester — Pausing 40s between flows...
+14:04:02 INFO booky_tester — Pausing 30s between flows...
+14:04:32 INFO booky_tester — Flushed 4 Redis session keys for Hiro
+14:06:46 INFO booky_tester — Pausing 35s between flows...
+14:08:58 INFO booky_tester — Pausing 35s between flows...
+14:09:33 INFO booky_tester — Flushed 4 Redis session keys for Hiro
+14:11:20 INFO booky_tester — Pausing 35s between flows...
+14:13:37 INFO booky_tester — Pausing 30s between flows...
+14:14:07 INFO booky_tester — Flushed 4 Redis session keys for Hiro
+14:16:00 INFO booky_tester — Pausing 35s between flows...
+14:17:41 INFO booky_tester — Pausing 30s between flows...
+14:18:12 INFO booky_tester — Flushed 4 Redis session keys for Hiro
+14:19:46 INFO booky_tester — Pausing 35s between flows...
+14:21:50 INFO booky_tester — Pausing 30s between flows...
+14:22:20 INFO booky_tester — Flushed 4 Redis session keys for Hiro
+14:24:26 INFO booky_tester — Pausing 35s between flows...
+14:26:06 INFO booky_tester — Pausing 30s between flows...
 
 ============================================================
 PERSONA: Dave — Dave's Plumbing Services
 
   → Dave / quote_create_confirm
-  [PASS] Dave/quote_create_confirm T1 (53.2s) — create quote
-  [PASS] Dave/quote_create_confirm T2 (27.7s) [clicked: ✅] — confirm quote
-  [PASS] Dave/quote_create_confirm T3 (37.0s) — recall quote number
+  [PASS] Dave/quote_create_confirm T1 (54.7s) — create quote [persona 1/1 100%]
+  [PASS] Dave/quote_create_confirm T2 (31.8s) [clicked: ✅] — confirm quote [persona 2/2 100%]
+  [PASS] Dave/quote_create_confirm T3 (34.4s) — recall quote number [persona 3/3 100%]
 
   → Dave / expense_then_invoice
-  [PASS] Dave/expense_then_invoice T1 (33.2s) — log expense
-  [PASS] Dave/expense_then_invoice T2 (42.5s) — create invoice
-  [PASS] Dave/expense_then_invoice T3 (28.7s) [clicked: ✅] — confirm invoice
+  [PASS] Dave/expense_then_invoice T1 (35.6s) — log expense [persona 4/4 100%]
+  [PASS] Dave/expense_then_invoice T2 (52.1s) — create invoice [persona 5/5 100%]
+  [PASS] Dave/expense_then_invoice T3 (33.0s) [clicked: ✅] — confirm invoice [persona 6/6 100%]
 
 ============================================================
 PERSONA: Sarah — Spark Electrical Solutions
 
   → Sarah / invoice_edit_price
-  [PASS] Sarah/invoice_edit_price T1 (44.8s) — create invoice
-  [PASS] Sarah/invoice_edit_price T2 (28.0s) [clicked: ✅] — dismiss pending, see preview
-  [PASS] Sarah/invoice_edit_price T3 (33.4s) — edit price
-  [PASS] Sarah/invoice_edit_price T4 (25.9s) [clicked: ✅] — confirm invoice
+  [PASS] Sarah/invoice_edit_price T1 (47.8s) — create invoice [persona 1/1 100%]
+  [PASS] Sarah/invoice_edit_price T2 (33.8s) [clicked: ✅] — dismiss pending, see preview [persona 2/2 100%]
+  [PASS] Sarah/invoice_edit_price T3 (35.7s) — edit price [persona 3/3 100%]
+  [PASS] Sarah/invoice_edit_price T4 (32.5s) [clicked: ✅] — confirm invoice [persona 4/4 100%]
 
   → Sarah / gst_question_then_quote
-  [PASS] Sarah/gst_question_then_quote T1 (47.9s) — tax question
-  [PASS] Sarah/gst_question_then_quote T2 (45.7s) — quote after question
-  [PASS] Sarah/gst_question_then_quote T3 (27.5s) [clicked: ✅] — confirm quote
+  [PASS] Sarah/gst_question_then_quote T1 (49.7s) — tax question [persona 5/5 100%]
+  [PASS] Sarah/gst_question_then_quote T2 (45.3s) — quote after question [persona 6/6 100%]
+  [PASS] Sarah/gst_question_then_quote T3 (32.5s) [clicked: ✅] — confirm quote [persona 7/7 100%]
 
 ============================================================
 PERSONA: Mike — GreenScape Landscaping
 
   → Mike / quote_qty_edit
-  [PASS] Mike/quote_qty_edit T1 (53.8s) — create multi-item quote
-  [PASS] Mike/quote_qty_edit T2 (25.9s) [clicked: ✅] — confirm initial quote
-  [FAIL] Mike/quote_qty_edit T3 (29.2s) — qty update
+  [PASS] Mike/quote_qty_edit T1 (52.8s) — create multi-item quote [persona 1/1 100%]
+  [PASS] Mike/quote_qty_edit T2 (32.3s) [clicked: ✅] — confirm initial quote [persona 2/2 100%]
+  [FAIL] Mike/quote_qty_edit T3 (53.4s) — qty update [persona 2/3 67%]
          ✗ Expected '3' not found
-  [PASS] Mike/quote_qty_edit T4 (20.6s) [clicked: ✅] — confirm updated quote
+  [PASS] Mike/quote_qty_edit T4 (30.4s) [clicked: ✅] — confirm updated quote [persona 3/4 75%]
 
   → Mike / expense_tracking
-  [PASS] Mike/expense_tracking T1 (35.7s) — log expense
-  [PASS] Mike/expense_tracking T2 (29.5s) — second expense
-  [PASS] Mike/expense_tracking T3 (34.2s) — recall expenses
+  [PASS] Mike/expense_tracking T1 (40.6s) — log expense [persona 4/5 80%]
+  [PASS] Mike/expense_tracking T2 (32.2s) — second expense [persona 5/6 83%]
+  [PASS] Mike/expense_tracking T3 (31.7s) — recall expenses [persona 6/7 86%]
 
 ============================================================
 PERSONA: Emma — Paws & Claws Grooming
 
   → Emma / invoice_series
-  [PASS] Emma/invoice_series T1 (38.6s) — create invoice
-  [PASS] Emma/invoice_series T2 (27.9s) [clicked: ✅] — confirm invoice
-  [PASS] Emma/invoice_series T3 (35.6s) — second invoice
+  [PASS] Emma/invoice_series T1 (37.5s) — create invoice [persona 1/1 100%]
+  [PASS] Emma/invoice_series T2 (32.9s) [clicked: ✅] — confirm invoice [persona 2/2 100%]
+  [PASS] Emma/invoice_series T3 (41.0s) — second invoice [persona 3/3 100%]
 
   → Emma / product_expense
-  [PASS] Emma/product_expense T1 (40.8s) — log supply expense
-  [PASS] Emma/product_expense T2 (31.9s) — log equipment expense
+  [PASS] Emma/product_expense T1 (44.1s) — log supply expense [persona 4/4 100%]
+  [PASS] Emma/product_expense T2 (32.8s) — log equipment expense [persona 5/5 100%]
 
 ============================================================
 PERSONA: Tom — TechFix IT Consulting
 
   → Tom / quote_with_description_edit
-  [PASS] Tom/quote_with_description_edit T1 (39.8s) — create quote
-  [PASS] Tom/quote_with_description_edit T2 (28.8s) [clicked: ✅] — confirm initial
-  [PASS] Tom/quote_with_description_edit T3 (33.7s) — rename item
-  [PASS] Tom/quote_with_description_edit T4 (23.5s) [clicked: ✅] — confirm renamed quote
+  [PASS] Tom/quote_with_description_edit T1 (40.0s) — create quote [persona 1/1 100%]
+  [PASS] Tom/quote_with_description_edit T2 (30.3s) [clicked: ✅] — confirm initial [persona 2/2 100%]
+  [PASS] Tom/quote_with_description_edit T3 (33.5s) — rename item [persona 3/3 100%]
+  [PASS] Tom/quote_with_description_edit T4 (25.8s) [clicked: ✅] — confirm renamed quote [persona 4/4 100%]
 
   → Tom / monthly_software_expense
-  [PASS] Tom/monthly_software_expense T1 (33.8s) — log subscription
-  [PASS] Tom/monthly_software_expense T2 (29.3s) — log second subscription
+  [PASS] Tom/monthly_software_expense T1 (31.8s) — log subscription [persona 5/5 100%]
+  [PASS] Tom/monthly_software_expense T2 (32.6s) — log second subscription [persona 6/6 100%]
 
 ============================================================
 PERSONA: Jake — SolidBase Concreting
 
   → Jake / large_job_quote
-  [PASS] Jake/large_job_quote T1 (50.2s) — large quote
-  [PASS] Jake/large_job_quote T2 (28.6s) [clicked: ✅] — confirm quote
-  [PASS] Jake/large_job_quote T3 (38.2s) — recall quote
+  [PASS] Jake/large_job_quote T1 (51.8s) — large quote [persona 1/1 100%]
+  [PASS] Jake/large_job_quote T2 (32.4s) [clicked: ✅] — confirm quote [persona 2/2 100%]
+  [PASS] Jake/large_job_quote T3 (46.3s) — recall quote [persona 3/3 100%]
 
   → Jake / multi_expense_day
-  [PASS] Jake/multi_expense_day T1 (29.5s) — expense 1
-  [PASS] Jake/multi_expense_day T2 (30.0s) — expense 2
-  [PASS] Jake/multi_expense_day T3 (26.5s) — expense 3
+  [PASS] Jake/multi_expense_day T1 (35.7s) — expense 1 [persona 4/4 100%]
+  [PASS] Jake/multi_expense_day T2 (32.9s) — expense 2 [persona 5/5 100%]
+  [PASS] Jake/multi_expense_day T3 (28.6s) — expense 3 [persona 6/6 100%]
 
 ============================================================
 PERSONA: Lisa — FitLife Personal Training
 
   → Lisa / recurring_client_invoice
-  [PASS] Lisa/recurring_client_invoice T1 (34.5s) — create invoice
-  [FAIL] Lisa/recurring_client_invoice T2 (17.1s) [clicked: ✅] — confirm invoice
-         ✗ Expected 'INV-' not found
-  [FAIL] Lisa/recurring_client_invoice T3 (29.8s) — second client invoice
-         ✗ Expected '75' not found
+  [PASS] Lisa/recurring_client_invoice T1 (36.8s) — create invoice [persona 1/1 100%]
+  [PASS] Lisa/recurring_client_invoice T2 (32.4s) [clicked: ✅] — confirm invoice [persona 2/2 100%]
+  [PASS] Lisa/recurring_client_invoice T3 (34.6s) — second client invoice [persona 3/3 100%]
 
   → Lisa / equipment_expense
-  [FAIL] Lisa/equipment_expense T1 (33.4s) — equipment expense
-         ✗ Expected '145' not found
-  [PASS] Lisa/equipment_expense T2 (32.9s) — recall expenses
+  [PASS] Lisa/equipment_expense T1 (40.0s) — equipment expense [persona 4/4 100%]
+  [PASS] Lisa/equipment_expense T2 (62.1s) — recall expenses [persona 5/5 100%]
 
 ============================================================
 PERSONA: Chen — SparkleClean Services
 
   → Chen / weekly_client_invoices
-  [FAIL] Chen/weekly_client_invoices T1 (37.2s) — invoice client 1
-         ✗ Expected '65' not found
-  [FAIL] Chen/weekly_client_invoices T2 (3.6s) — confirm invoice
-         ✗ Expected 'INV-' not found
-  [FAIL] Chen/weekly_client_invoices T3 (33.2s) — invoice client 2
-         ✗ Expected '70' not found
+  [PASS] Chen/weekly_client_invoices T1 (35.5s) — invoice client 1 [persona 1/1 100%]
+  [PASS] Chen/weekly_client_invoices T2 (33.3s) [clicked: ✅] — confirm invoice [persona 2/2 100%]
+  [PASS] Chen/weekly_client_invoices T3 (40.8s) — invoice client 2 [persona 3/3 100%]
 
   → Chen / cleaning_supplies
-  [FAIL] Chen/cleaning_supplies T1 (29.4s) — expense
-         ✗ Expected '89' not found
-  [FAIL] Chen/cleaning_supplies T2 (24.3s) — second expense
-         ✗ Expected '34' not found
+  [PASS] Chen/cleaning_supplies T1 (37.1s) — expense [persona 4/4 100%]
+  [PASS] Chen/cleaning_supplies T2 (29.7s) — second expense [persona 5/5 100%]
 
 ============================================================
 PERSONA: Raj — City Rides Transport
 
   → Raj / vehicle_expenses
-  [FAIL] Raj/vehicle_expenses T1 (30.5s) — service expense
-         ✗ Expected '285' not found
-  [FAIL] Raj/vehicle_expenses T2 (26.3s) — tyre expense
-         ✗ Expected '680' not found
-  [FAIL] Raj/vehicle_expenses T3 (25.2s) — fuel expense
-         ✗ Expected '123.60' not found
+  [PASS] Raj/vehicle_expenses T1 (31.9s) — service expense [persona 1/1 100%]
+  [PASS] Raj/vehicle_expenses T2 (29.7s) — tyre expense [persona 2/2 100%]
+  [PASS] Raj/vehicle_expenses T3 (30.0s) — fuel expense [persona 3/3 100%]
 
   → Raj / gst_advice
-  [FAIL] Raj/gst_advice T1 (32.6s) — gst question
-         ✗ Expected 'GST' not found
-  [FAIL] Raj/gst_advice T2 (23.6s) — follow-up question
-         ✗ Expected 'expense' not found
+  [PASS] Raj/gst_advice T1 (47.9s) — gst question [persona 4/4 100%]
+  [PASS] Raj/gst_advice T2 (41.0s) — follow-up question [persona 5/5 100%]
 
 ============================================================
 PERSONA: Amy — Pixel Perfect Design
 
   → Amy / project_quote
-  [FAIL] Amy/project_quote T1 (39.3s) — create quote
-         ✗ Expected '150' not found
-  [FAIL] Amy/project_quote T2 (5.5s) — confirm quote
-         ✗ Expected 'QU-' not found
-  [PASS] Amy/project_quote T3 (24.4s) — recall total
+  [PASS] Amy/project_quote T1 (51.9s) — create quote [persona 1/1 100%]
+  [PASS] Amy/project_quote T2 (31.7s) [clicked: ✅] — confirm quote [persona 2/2 100%]
+  [PASS] Amy/project_quote T3 (39.1s) — recall total [persona 3/3 100%]
 
   → Amy / software_subscriptions
-  [FAIL] Amy/software_subscriptions T1 (31.7s) — software expense
-         ✗ Expected '87.99' not found
-  [FAIL] Amy/software_subscriptions T2 (33.9s) — second software expense
-         ✗ Expected '31' not found
+  [PASS] Amy/software_subscriptions T1 (30.8s) — software expense [persona 4/4 100%]
+  [PASS] Amy/software_subscriptions T2 (34.6s) — second software expense [persona 5/5 100%]
 
 ======================================================================
-RESULTS: 39/57 turns passed (68.4%)
-Duration: 2536s (42.3 min)
+RESULTS: 56/57 turns passed (98.2%)
+Duration: 2870s (47.8 min)
 
 Failed turns:
   Mike/quote_qty_edit T3: qty update
     Expected: '3'
-    Got: 'Replace quote:\n  • qty_update — $0.00\nConfirm?'
-  Lisa/recurring_client_invoice T2: confirm invoice
-    Expected: 'INV-'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Lisa/recurring_client_invoice T3: second client invoice
-    Expected: '75'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Lisa/equipment_expense T1: equipment expense
-    Expected: '145'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Chen/weekly_client_invoices T1: invoice client 1
-    Expected: '65'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Chen/weekly_client_invoices T2: confirm invoice
-    Expected: 'INV-'
-    Got: ''
-  Chen/weekly_client_invoices T3: invoice client 2
-    Expected: '70'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Chen/cleaning_supplies T1: expense
-    Expected: '89'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Chen/cleaning_supplies T2: second expense
-    Expected: '34'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Raj/vehicle_expenses T1: service expense
-    Expected: '285'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Raj/vehicle_expenses T2: tyre expense
-    Expected: '680'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Raj/vehicle_expenses T3: fuel expense
-    Expected: '123.60'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Raj/gst_advice T1: gst question
-    Expected: 'GST'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Raj/gst_advice T2: follow-up question
-    Expected: 'expense'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Amy/project_quote T1: create quote
-    Expected: '150'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Amy/project_quote T2: confirm quote
-    Expected: 'QU-'
-    Got: ''
-  Amy/software_subscriptions T1: software expense
-    Expected: '87.99'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
-  Amy/software_subscriptions T2: second software expense
-    Expected: '31'
-    Got: "You've reached today's 50-message limit on the free trial.\n\nYour limit resets at midnight UTC. Upgrade to Booky Starter "
+    Got: 'Replace quote for Hillside Estate:\n  • garden design consultation — $95.00\n  • mulching — $75.00\nConfirm?'
 ======================================================================
 
-Results saved to results.json
+Results saved to results.json (history: results/results-20260430T053846Z.json)
